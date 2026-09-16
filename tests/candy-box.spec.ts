@@ -50,6 +50,16 @@ async function holdUntilCoordinate(
   return finalState.player[axis];
 }
 
+async function moveToDoorHeight(page: Page): Promise<void> {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const state = await readDebugState(page);
+    if (!state) throw new Error("Development debug state is unavailable.");
+    if (state.player.y >= 360 && state.player.y <= 440) return;
+    await holdKey(page, state.player.y > 440 ? "ArrowUp" : "ArrowDown", 100);
+  }
+  throw new Error("Player did not reach the doorway height.");
+}
+
 async function goToVillage(page: Page): Promise<void> {
   await holdUntilText(page, "ArrowRight", "#location-title", "THE VILLAGE");
 }
@@ -204,7 +214,7 @@ test("constrains all four outer walls in development", async ({ page }) => {
   expect(await holdUntilCoordinate(page, "ArrowLeft", "x", 56, "atMost")).toBe(56);
   expect(await holdUntilCoordinate(page, "ArrowUp", "y", 100, "atMost")).toBe(100);
   expect(await holdUntilCoordinate(page, "ArrowDown", "y", 704, "atLeast")).toBe(704);
-  await holdUntilCoordinate(page, "ArrowUp", "y", 460, "atMost");
+  await moveToDoorHeight(page);
   await goToFortress(page);
   expect(await holdUntilCoordinate(page, "ArrowRight", "x", 1344, "atLeast")).toBe(1344);
 });
