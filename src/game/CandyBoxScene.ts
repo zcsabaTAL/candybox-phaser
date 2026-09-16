@@ -24,6 +24,7 @@ export class CandyBoxScene extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: Record<"W" | "A" | "S" | "D", Phaser.Input.Keyboard.Key>;
   private candyCount: 0 | 1 = 0;
+  private boundaryMessageShown = false;
 
   constructor() {
     super("CandyBox");
@@ -39,7 +40,7 @@ export class CandyBoxScene extends Phaser.Scene {
     this.player.setCollideWorldBounds(true);
     this.player.setDepth(3);
 
-    this.candy = this.physics.add.sprite(610, 268, "candy");
+    this.candy = this.physics.add.sprite(370, 268, "candy");
     this.candy.setImmovable(true);
     this.candy.setDepth(2);
 
@@ -70,6 +71,7 @@ export class CandyBoxScene extends Phaser.Scene {
     }
 
     this.player.setVelocity(velocity.x, velocity.y);
+    this.updateBoundaryMessage(velocity);
     this.publishDebugState();
   }
 
@@ -154,6 +156,22 @@ export class CandyBoxScene extends Phaser.Scene {
 
     this.cameras.main.flash(180, 255, 221, 117, false);
     this.publishDebugState();
+  }
+
+  private updateBoundaryMessage(velocity: Phaser.Math.Vector2): void {
+    const body = this.player.body as Phaser.Physics.Arcade.Body;
+    const pushingAgainstBoundary = velocity.lengthSq() > 0
+      && (body.blocked.left || body.blocked.right || body.blocked.up || body.blocked.down);
+
+    if (pushingAgainstBoundary && !this.boundaryMessageShown) {
+      const status = document.querySelector<HTMLParagraphElement>("#game-status");
+      if (status) {
+        status.textContent = "The edge of the box holds firm.";
+      }
+      this.boundaryMessageShown = true;
+    } else if (!pushingAgainstBoundary) {
+      this.boundaryMessageShown = false;
+    }
   }
 
   private publishDebugState(): void {

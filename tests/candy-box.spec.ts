@@ -22,6 +22,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto("./");
   await expect(page.locator("canvas")).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
+  await page.locator("canvas").click();
 
   (page as Page & { collectedErrors?: string[] }).collectedErrors = errors;
 });
@@ -45,18 +46,15 @@ test("moves the player, respects the boundary, and collects one candy", async ({
   const movedFrame = await canvas.screenshot();
   expect(movedFrame.equals(initialFrame)).toBe(false);
 
-  await holdKey(page, "ArrowRight", 2_800);
+  await holdKey(page, "ArrowRight", 1_200);
   await expect(page.locator("#candy-counter")).toHaveText("Candies: 1/1");
   await expect(page.locator("#game-status")).toHaveText("The first candy is yours.");
 
-  await page.waitForTimeout(250);
-  const boundaryFrame = await canvas.screenshot();
-  await holdKey(page, "ArrowRight", 800);
-  const afterBoundaryFrame = await canvas.screenshot();
-  expect(afterBoundaryFrame.equals(boundaryFrame)).toBe(true);
+  await holdKey(page, "ArrowRight", 1_800);
+  await expect(page.locator("#game-status")).toHaveText("The edge of the box holds firm.");
 
-  await holdKey(page, "ArrowLeft", 1_400);
-  await holdKey(page, "ArrowRight", 1_400);
+  await holdKey(page, "ArrowLeft", 900);
+  await holdKey(page, "ArrowRight", 900);
   await expect(page.locator("#candy-counter")).toHaveText("Candies: 1/1");
 });
 
@@ -77,7 +75,7 @@ test("exposes diagnostics only in development", async ({ page }) => {
 });
 
 test("starts a clean run after reload", async ({ page }) => {
-  await holdKey(page, "ArrowRight", 3_200);
+  await holdKey(page, "ArrowRight", 1_800);
   await expect(page.locator("#candy-counter")).toHaveText("Candies: 1/1");
 
   await page.reload();
