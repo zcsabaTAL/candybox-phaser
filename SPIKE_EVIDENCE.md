@@ -35,6 +35,7 @@ Session 2 must test both scene transitions and minimum viable audio playback. Fu
 ## Session 2: mini-world
 
 - Started: 2026-09-16T20:45:00+02:00
+- Playable implementation commit: `c5eeb854bf3b1f78708df06c4e750d5cd6b92bcd`
 - Scope: Candy Box, Village, Fortress entrance, two-way transitions, camera follow, runtime candy continuity, and minimum viable browser audio.
 - Music choice: no player-facing selector. The main theme is active at startup, waits for the first real gesture, and changes automatically at the Fortress entrance.
 - Full dialogue, captions, ducking, preferences, and saved progress remain Session 3 scope.
