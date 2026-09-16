@@ -3,7 +3,7 @@ import "./style.css";
 import { MusicController } from "./audio/MusicController";
 import { VoiceController, type DialogueRequest } from "./audio/VoiceController";
 import { gameConfig } from "./game/config";
-import { clearRuntimeState, saveRuntimeState, type LocationKey } from "./game/worldState";
+import { resetRuntimeState, saveRuntimeState, type LocationKey } from "./game/worldState";
 
 document.body.dataset.buildMode = import.meta.env.MODE;
 
@@ -21,7 +21,7 @@ window.addEventListener("candybox:dialogue", (event) => {
 document.querySelector<HTMLButtonElement>("#new-game")?.addEventListener("click", () => {
   if (window.confirm("Start a new game and erase the current prototype save?")) {
     resettingGame = true;
-    clearRuntimeState();
+    resetRuntimeState();
     window.location.reload();
   }
 });

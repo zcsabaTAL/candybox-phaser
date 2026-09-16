@@ -47,8 +47,8 @@ Session 2 must test both scene transitions and minimum viable audio playback. Fu
 - Started: 2026-09-16
 - Scope: one blacksmith interaction, recorded dialogue, captions, music ducking, and a clean versioned local save for location, position, and candy count.
 - Save format: `saveVersion: 1`; no Candy Box 2 compatibility or migration layer.
-- First agent solution accepted without human correction: awaiting user acceptance
-- Human correction rounds: 0 so far
+- First agent solution accepted without human correction: no. Manual review requested deterministic New game behavior and doorway-only location transitions.
+- Human correction rounds: 1
 - Agent correction rounds before human review: 2. The browser suite found position staleness at reload and a same-frame transition save ordering fault.
 - Agent independently ran the development build: yes
 - Agent independently ran the production build: yes
@@ -56,6 +56,7 @@ Session 2 must test both scene transitions and minimum viable audio playback. Fu
 - Agent independently ran production Playwright tests: yes, 7 passed and 1 development-only test skipped
 - Agent independently completed browser verification: yes, automated interaction and persistence coverage plus visual Chromium screenshot inspection
 - Playwright test-level retries: 0
+- Post-review coverage: New game writes a known version-1 default before reload, and horizontal scene transitions require the player to be inside the visible doorway opening.
 - Agent independently ran the development build: yes
 - Agent independently ran the production build: yes
 - Agent independently ran development Playwright tests: yes, 6 passed

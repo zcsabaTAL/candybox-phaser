@@ -70,6 +70,10 @@ export function saveRuntimeState(): void {
   localStorage.setItem(SAVE_KEY, JSON.stringify(save));
 }
 
-export function clearRuntimeState(): void {
-  localStorage.removeItem(SAVE_KEY);
+export function resetRuntimeState(): void {
+  runtimeState.location = DEFAULT_STATE.location;
+  runtimeState.position = { ...DEFAULT_STATE.position };
+  runtimeState.candyCount = DEFAULT_STATE.candyCount;
+  runtimeState.entryFrom = undefined;
+  saveRuntimeState();
 }

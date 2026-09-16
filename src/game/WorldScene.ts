@@ -7,6 +7,8 @@ const ARENA = new Phaser.Geom.Rectangle(40, 84, 1320, 636);
 const PLAYER_SPEED = 260;
 const BLACKSMITH = new Phaser.Math.Vector2(700, 400);
 const BLACKSMITH_CAPTION = "Howdy! Ah'm a blacksmith. Ah kin sell ye various weapons an' pieces o' equipment.";
+const DOOR_TOP = 310;
+const DOOR_BOTTOM = 490;
 
 interface LocationDefinition {
   key: LocationKey;
@@ -137,11 +139,16 @@ abstract class WorldScene extends Phaser.Scene {
   }
 
   private checkExit(): void {
+    if (!this.isAtDoor()) return;
     if (this.player.x >= 1338 && this.definition.right) {
       this.transitionTo(this.definition.right, "left");
     } else if (this.player.x <= 62 && this.definition.left) {
       this.transitionTo(this.definition.left, "right");
     }
+  }
+
+  private isAtDoor(): boolean {
+    return this.player.y >= DOOR_TOP && this.player.y <= DOOR_BOTTOM;
   }
 
   private transitionTo(next: LocationKey, entryFrom: "left" | "right"): void {
@@ -304,14 +311,18 @@ abstract class WorldScene extends Phaser.Scene {
 
   private updateBoundaryMessage(velocity: Phaser.Math.Vector2): void {
     const body = this.player.body as Phaser.Physics.Arcade.Body;
-    const blockedAtClosedEdge = (body.blocked.left && !this.definition.left)
-      || (body.blocked.right && !this.definition.right)
+    const blockedAtClosedEdge = (body.blocked.left && (!this.definition.left || !this.isAtDoor()))
+      || (body.blocked.right && (!this.definition.right || !this.isAtDoor()))
       || body.blocked.up
       || body.blocked.down;
     const pushing = velocity.lengthSq() > 0 && blockedAtClosedEdge;
     if (pushing && !this.boundaryMessageShown) {
       const status = document.querySelector<HTMLParagraphElement>("#game-status");
-      if (status) status.textContent = "The edge of this place holds firm.";
+      if (status) {
+        status.textContent = (body.blocked.left || body.blocked.right)
+          ? "The wall is solid. Find the doorway."
+          : "The edge of this place holds firm.";
+      }
       this.boundaryMessageShown = true;
     } else if (!pushing) {
       this.boundaryMessageShown = false;

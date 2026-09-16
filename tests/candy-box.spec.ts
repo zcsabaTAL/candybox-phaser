@@ -188,12 +188,23 @@ test("keeps movement active when revisiting scenes", async ({ page }) => {
   await holdUntilText(page, "ArrowRight", "#location-title", "FORTRESS ENTRANCE");
 });
 
+test("changes location only through the doorway", async ({ page }) => {
+  test.setTimeout(60_000);
+  await holdKey(page, "ArrowUp", 2_000);
+  await holdUntilText(page, "ArrowRight", "#game-status", "The wall is solid. Find the doorway.");
+  await expect(page.locator("#location-title")).toHaveText("CANDY BOX");
+  await holdKey(page, "ArrowDown", 1_200);
+  await goToVillage(page);
+  await expect(page.locator("#location-title")).toHaveText("THE VILLAGE");
+});
+
 test("constrains all four outer walls in development", async ({ page }) => {
   test.setTimeout(60_000);
   test.skip(profile !== "development", "Exact coordinates are intentionally development-only.");
   expect(await holdUntilCoordinate(page, "ArrowLeft", "x", 56, "atMost")).toBe(56);
   expect(await holdUntilCoordinate(page, "ArrowUp", "y", 100, "atMost")).toBe(100);
   expect(await holdUntilCoordinate(page, "ArrowDown", "y", 704, "atLeast")).toBe(704);
+  await holdUntilCoordinate(page, "ArrowUp", "y", 460, "atMost");
   await goToFortress(page);
   expect(await holdUntilCoordinate(page, "ArrowRight", "x", 1344, "atLeast")).toBe(1344);
 });
