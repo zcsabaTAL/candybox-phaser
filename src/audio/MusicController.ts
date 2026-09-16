@@ -10,6 +10,7 @@ export class MusicController {
   private readonly audio: HTMLAudioElement;
   private unlocked = false;
   private activeTrack = "";
+  private ducked = false;
 
   constructor() {
     this.audio = document.createElement("audio");
@@ -29,6 +30,11 @@ export class MusicController {
 
     document.addEventListener("pointerdown", unlock);
     document.addEventListener("keydown", unlock);
+  }
+
+  setDucked(ducked: boolean): void {
+    this.ducked = ducked;
+    this.audio.volume = ducked ? 0.1225 : 0.35;
   }
 
   setLocation(location: LocationKey): void {
@@ -53,6 +59,7 @@ export class MusicController {
     }
 
     try {
+      this.audio.volume = this.ducked ? 0.1225 : 0.35;
       await this.audio.play();
     } catch (error) {
       console.warn("Music playback is waiting for a browser gesture.", error);

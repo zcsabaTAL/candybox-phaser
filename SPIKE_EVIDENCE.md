@@ -41,6 +41,21 @@ Session 2 must test both scene transitions and minimum viable audio playback. Fu
 - Full dialogue, captions, ducking, preferences, and saved progress remain Session 3 scope.
 - First agent solution accepted without human correction: no. Manual testing found a movement lock when revisiting a scene.
 - Human correction rounds: 1. Revisited Phaser scenes retained their transition lock and stopped accepting movement. Scene-entry state is now reset and covered by a repeated round-trip regression test.
+
+## Session 3: interaction and save
+
+- Started: 2026-09-16
+- Scope: one blacksmith interaction, recorded dialogue, captions, music ducking, and a clean versioned local save for location, position, and candy count.
+- Save format: `saveVersion: 1`; no Candy Box 2 compatibility or migration layer.
+- First agent solution accepted without human correction: awaiting user acceptance
+- Human correction rounds: 0 so far
+- Agent correction rounds before human review: 2. The browser suite found position staleness at reload and a same-frame transition save ordering fault.
+- Agent independently ran the development build: yes
+- Agent independently ran the production build: yes
+- Agent independently ran development Playwright tests: yes, 8 passed
+- Agent independently ran production Playwright tests: yes, 7 passed and 1 development-only test skipped
+- Agent independently completed browser verification: yes, automated interaction and persistence coverage plus visual Chromium screenshot inspection
+- Playwright test-level retries: 0
 - Agent independently ran the development build: yes
 - Agent independently ran the production build: yes
 - Agent independently ran development Playwright tests: yes, 6 passed

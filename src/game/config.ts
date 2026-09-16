@@ -1,5 +1,11 @@
 import Phaser from "phaser";
 import { CandyBoxScene, FortressEntranceScene, VillageScene } from "./WorldScene";
+import { runtimeState } from "./worldState";
+
+class BootstrapScene extends Phaser.Scene {
+  constructor() { super("Bootstrap"); }
+  create(): void { this.scene.start(runtimeState.location); }
+}
 
 export const gameConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -17,5 +23,5 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  scene: [CandyBoxScene, VillageScene, FortressEntranceScene],
+  scene: [BootstrapScene, CandyBoxScene, VillageScene, FortressEntranceScene],
 };

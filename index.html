@@ -17,11 +17,16 @@
           <h1 id="location-title">CANDY BOX</h1>
           <p id="location-mood" class="location-mood">A single candy hums in the dark.</p>
         </div>
-        <p id="candy-counter" class="counter" aria-live="polite">Candies: 0/1</p>
+        <div class="header-actions">
+          <p id="candy-counter" class="counter" aria-live="polite">Candies: 0/1</p>
+          <button id="new-game" class="new-game" type="button">New game</button>
+        </div>
       </header>
       <section class="game-frame" aria-label="Candy Box game area">
         <div id="game"></div>
       </section>
+      <p id="interaction-prompt" class="interaction-prompt" hidden>Press E to talk to the blacksmith</p>
+      <p id="dialogue-caption" class="dialogue-caption" aria-live="polite" hidden></p>
       <footer>
         <p>Move with WASD or the arrow keys. Follow the road to the fortress.</p>
         <p id="game-status" class="status" aria-live="polite">The candy is waiting.</p>

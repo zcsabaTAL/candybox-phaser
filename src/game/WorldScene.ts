@@ -1,10 +1,12 @@
 import Phaser from "phaser";
-import { runtimeState, type LocationKey } from "./worldState";
+import { runtimeState, saveRuntimeState, type LocationKey } from "./worldState";
 
 const WORLD_WIDTH = 1400;
 const WORLD_HEIGHT = 760;
 const ARENA = new Phaser.Geom.Rectangle(40, 84, 1320, 636);
 const PLAYER_SPEED = 260;
+const BLACKSMITH = new Phaser.Math.Vector2(700, 400);
+const BLACKSMITH_CAPTION = "Howdy! Ah'm a blacksmith. Ah kin sell ye various weapons an' pieces o' equipment.";
 
 interface LocationDefinition {
   key: LocationKey;
@@ -54,8 +56,11 @@ abstract class WorldScene extends Phaser.Scene {
   private candy?: Phaser.Physics.Arcade.Sprite;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasd!: Record<"W" | "A" | "S" | "D", Phaser.Input.Keyboard.Key>;
+  private interactKey!: Phaser.Input.Keyboard.Key;
   private transitioning = false;
   private boundaryMessageShown = false;
+  private interactionAvailable = false;
+  private lastSavedAt = 0;
 
   protected constructor(key: LocationKey) {
     super(key);
@@ -65,13 +70,14 @@ abstract class WorldScene extends Phaser.Scene {
   create(): void {
     this.transitioning = false;
     this.boundaryMessageShown = false;
+    this.interactionAvailable = false;
+    this.lastSavedAt = 0;
     this.drawWorld();
     this.createTextures();
     this.updatePageChrome();
 
     this.physics.world.setBounds(ARENA.x, ARENA.y, ARENA.width, ARENA.height);
-    const startX = runtimeState.entryFrom === "right" ? 1295 : 105;
-    this.player = this.physics.add.sprite(startX, 400, "player");
+    this.player = this.physics.add.sprite(runtimeState.position.x, runtimeState.position.y, "player");
     this.player.setCollideWorldBounds(true).setDepth(3);
 
     if (this.definition.key === "CandyBox" && runtimeState.candyCount === 0) {
@@ -89,6 +95,7 @@ abstract class WorldScene extends Phaser.Scene {
       "W" | "A" | "S" | "D",
       Phaser.Input.Keyboard.Key
     >;
+    this.interactKey = keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
 
     const camera = this.cameras.main;
     camera.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
@@ -114,6 +121,16 @@ abstract class WorldScene extends Phaser.Scene {
     }
 
     this.player.setVelocity(velocity.x, velocity.y);
+    this.updateInteraction();
+    if (this.interactionAvailable && Phaser.Input.Keyboard.JustDown(this.interactKey)) {
+      window.dispatchEvent(new CustomEvent("candybox:dialogue", {
+        detail: {
+          src: "audio/blacksmith-introduction.wav",
+          caption: BLACKSMITH_CAPTION,
+        },
+      }));
+    }
+    this.persistPosition();
     this.checkExit();
     this.updateBoundaryMessage(velocity);
     this.publishDebugState();
@@ -131,6 +148,12 @@ abstract class WorldScene extends Phaser.Scene {
     this.transitioning = true;
     this.player.setVelocity(0, 0);
     runtimeState.entryFrom = entryFrom;
+    runtimeState.location = next;
+    runtimeState.position = {
+      x: entryFrom === "right" ? 1295 : 105,
+      y: Phaser.Math.Clamp(this.player.y, 100, 704),
+    };
+    saveRuntimeState();
     this.cameras.main.fadeOut(160, 8, 5, 12);
     this.time.delayedCall(170, () => this.scene.start(next));
   }
@@ -140,6 +163,7 @@ abstract class WorldScene extends Phaser.Scene {
     const mood = document.querySelector<HTMLParagraphElement>("#location-mood");
     const counter = document.querySelector<HTMLParagraphElement>("#candy-counter");
     const status = document.querySelector<HTMLParagraphElement>("#game-status");
+    const prompt = document.querySelector<HTMLParagraphElement>("#interaction-prompt");
 
     if (heading) heading.textContent = this.definition.title;
     if (mood) mood.textContent = this.definition.mood;
@@ -149,6 +173,7 @@ abstract class WorldScene extends Phaser.Scene {
         ? "The candy is waiting."
         : "The road is open.";
     }
+    if (prompt) prompt.hidden = true;
 
     window.dispatchEvent(new CustomEvent<LocationKey>("candybox:location", {
       detail: this.definition.key,
@@ -197,6 +222,14 @@ abstract class WorldScene extends Phaser.Scene {
         graphics.fillStyle(0xffd978, 0.75).fillRect(x + 55, 380, 38, 42);
       }
       graphics.fillStyle(0x907052, 1).fillRect(70, 520, 1260, 74);
+      graphics.fillStyle(0x33251e, 1).fillCircle(BLACKSMITH.x, BLACKSMITH.y, 28);
+      graphics.fillStyle(0xd7a25b, 1).fillRect(BLACKSMITH.x - 20, BLACKSMITH.y - 13, 40, 30);
+      this.add.text(BLACKSMITH.x, BLACKSMITH.y + 48, "BLACKSMITH", {
+        color: "#fff1bc",
+        fontFamily: "Arial, sans-serif",
+        fontSize: "12px",
+        fontStyle: "bold",
+      }).setOrigin(0.5);
       return;
     }
 
@@ -242,6 +275,7 @@ abstract class WorldScene extends Phaser.Scene {
   private collectCandy(): void {
     if (runtimeState.candyCount === 1 || !this.candy) return;
     runtimeState.candyCount = 1;
+    saveRuntimeState();
     this.candy.disableBody(true, true);
     const counter = document.querySelector<HTMLParagraphElement>("#candy-counter");
     const status = document.querySelector<HTMLParagraphElement>("#game-status");
@@ -249,6 +283,23 @@ abstract class WorldScene extends Phaser.Scene {
     if (status) status.textContent = "The first candy is yours.";
     this.cameras.main.flash(180, 255, 221, 117, false);
     this.publishDebugState();
+  }
+
+  private updateInteraction(): void {
+    const available = this.definition.key === "Village"
+      && Phaser.Math.Distance.Between(this.player.x, this.player.y, BLACKSMITH.x, BLACKSMITH.y) <= 95;
+    if (available === this.interactionAvailable) return;
+    this.interactionAvailable = available;
+    const prompt = document.querySelector<HTMLParagraphElement>("#interaction-prompt");
+    if (prompt) prompt.hidden = !available;
+  }
+
+  private persistPosition(): void {
+    runtimeState.location = this.definition.key;
+    runtimeState.position = { x: Math.round(this.player.x), y: Math.round(this.player.y) };
+    if (this.time.now - this.lastSavedAt < 500) return;
+    saveRuntimeState();
+    this.lastSavedAt = this.time.now;
   }
 
   private updateBoundaryMessage(velocity: Phaser.Math.Vector2): void {
@@ -278,6 +329,7 @@ abstract class WorldScene extends Phaser.Scene {
       },
       candy: { collected: runtimeState.candyCount === 1 },
       candyCount: runtimeState.candyCount,
+      interactionAvailable: this.interactionAvailable,
     };
   }
 }

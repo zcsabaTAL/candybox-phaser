@@ -10,6 +10,8 @@ This separate prototype tests how productively a small Candy Box successor can b
 - One collectible candy and a visible counter.
 - Camera follow, two-way scene transitions, and runtime candy continuity.
 - Main theme playback after the first browser gesture, with an automatic Fortress theme change.
+- A blacksmith interaction with recorded dialogue, captions, and background-music ducking.
+- Versioned local save for location, position, and candy count, plus a New game reset.
 - Development and production Playwright gates.
 - GitHub Pages deployment only after both profiles pass.
 

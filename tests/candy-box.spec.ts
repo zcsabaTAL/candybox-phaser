@@ -59,11 +59,25 @@ async function goToFortress(page: Page): Promise<void> {
   await holdUntilText(page, "ArrowRight", "#location-title", "FORTRESS ENTRANCE");
 }
 
+async function approachBlacksmith(page: Page): Promise<void> {
+  const prompt = page.locator("#interaction-prompt");
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    if (await prompt.isVisible()) return;
+    await holdKey(page, "ArrowRight", 300);
+  }
+  await expect(prompt).toBeVisible();
+}
+
 test.beforeEach(async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("./");
+  page.once("dialog", (dialog) => dialog.accept());
+  await Promise.all([
+    page.waitForEvent("load"),
+    page.getByRole("button", { name: "New game" }).click(),
+  ]);
   await expect(page.locator("canvas")).toBeVisible();
   await page.evaluate(async () => { await document.fonts.ready; });
   (page as Page & { collectedErrors?: string[] }).collectedErrors = errors;
@@ -140,6 +154,29 @@ test("queues the main theme, unlocks it with a gesture, and changes it at the fo
   expect(atFortress.source).toContain("/music/fortress-entrance.mp3");
 });
 
+test("talks to the blacksmith with captions and music ducking", async ({ page }) => {
+  test.setTimeout(60_000);
+  await goToVillage(page);
+  await approachBlacksmith(page);
+  await expect(page.locator("#interaction-prompt")).toHaveText("Press E to talk to the blacksmith");
+
+  await page.keyboard.press("e");
+  const voice = page.locator("#dialogue-voice");
+  const music = page.locator("#location-music");
+  await expect(page.locator("#dialogue-caption")).toHaveText(
+    "Howdy! Ah'm a blacksmith. Ah kin sell ye various weapons an' pieces o' equipment.",
+  );
+  await expect(page.locator("#dialogue-caption")).toBeVisible();
+  await expect.poll(() => voice.evaluate((element: HTMLAudioElement) => element.paused)).toBe(false);
+  expect(await music.evaluate((element: HTMLAudioElement) => element.volume)).toBeCloseTo(0.1225);
+
+  await expect.poll(() => voice.evaluate((element: HTMLAudioElement) => element.paused), {
+    timeout: 15_000,
+  }).toBe(true);
+  await expect(page.locator("#dialogue-caption")).toBeHidden();
+  expect(await music.evaluate((element: HTMLAudioElement) => element.volume)).toBeCloseTo(0.35);
+});
+
 test("keeps movement active when revisiting scenes", async ({ page }) => {
   test.setTimeout(60_000);
 
@@ -170,10 +207,25 @@ test("exposes diagnostics only in development", async ({ page }) => {
   }
 });
 
-test("starts a clean run after reload", async ({ page }) => {
+test("saves progress across reload and supports a new game", async ({ page }) => {
+  test.setTimeout(60_000);
   await holdUntilText(page, "ArrowRight", "#candy-counter", "Candies: 1/1");
+  await goToVillage(page);
+  await approachBlacksmith(page);
+
+  const positionBeforeReload = profile === "development" ? (await readDebugState(page))!.player : undefined;
   await page.reload();
   await expect(page.locator("canvas")).toBeVisible();
+  await expect(page.locator("#location-title")).toHaveText("THE VILLAGE");
+  await expect(page.locator("#candy-counter")).toHaveText("Candies: 1/1");
+  if (profile === "development") {
+    const restored = await readDebugState(page);
+    expect(restored!.player.x).toBeCloseTo(positionBeforeReload!.x, -1);
+    expect(restored!.player.y).toBeCloseTo(positionBeforeReload!.y, -1);
+  }
+
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("button", { name: "New game" }).click();
   await expect(page.locator("#location-title")).toHaveText("CANDY BOX");
   await expect(page.locator("#candy-counter")).toHaveText("Candies: 0/1");
 });
