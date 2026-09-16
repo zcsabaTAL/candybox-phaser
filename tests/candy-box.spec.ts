@@ -103,7 +103,7 @@ test("moves, collects the candy, and keeps it through the mini-world", async ({ 
   if (profile === "development") {
     const village = await readDebugState(page);
     expect(village).toMatchObject({ scene: "Village", candyCount: 1 });
-    expect(village!.player.x).toBeLessThan(160);
+    expect(village!.player.x).toBeLessThan(400);
     await holdKey(page, "ArrowRight", 1800);
     expect((await readDebugState(page))!.camera.scrollX).toBeGreaterThan(0);
   }

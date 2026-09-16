@@ -35,7 +35,7 @@ Session 2 must test both scene transitions and minimum viable audio playback. Fu
 ## Session 2: mini-world
 
 - Started: 2026-09-16T20:45:00+02:00
-- Playable implementation commit: `c5eeb854bf3b1f78708df06c4e750d5cd6b92bcd`
+- Playable implementation commit: `c5eeb8525651192517f6658537d3a473125b9101`
 - Scope: Candy Box, Village, Fortress entrance, two-way transitions, camera follow, runtime candy continuity, and minimum viable browser audio.
 - Music choice: no player-facing selector. The main theme is active at startup, waits for the first real gesture, and changes automatically at the Fortress entrance.
 - Full dialogue, captions, ducking, preferences, and saved progress remain Session 3 scope.
@@ -48,3 +48,4 @@ Session 2 must test both scene transitions and minimum viable audio playback. Fu
 - Agent independently completed browser verification: yes, automated traversal plus visual inspection of a locally rendered Chromium screenshot
 - Playwright test-level retries: 0
 - Assertion-level timing tolerance: at most 12 rounds of 500 ms keyboard input for long-distance traversal, plus bounded Playwright polling for actual audio playback state
+- Agent correction rounds before human review: 1. The first CI run exposed an overly narrow entry-position assertion while the held movement key remained active across the transition.
