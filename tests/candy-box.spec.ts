@@ -10,6 +10,24 @@ async function holdKey(page: Page, key: string, milliseconds: number): Promise<v
   await page.keyboard.up(key);
 }
 
+async function holdUntilText(
+  page: Page,
+  key: string,
+  selector: string,
+  expected: string,
+): Promise<void> {
+  const target = page.locator(selector);
+
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    if ((await target.textContent()) === expected) {
+      return;
+    }
+    await holdKey(page, key, 500);
+  }
+
+  await expect(target).toHaveText(expected);
+}
+
 test.beforeEach(async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (message) => {
@@ -46,11 +64,16 @@ test("moves the player, respects the boundary, and collects one candy", async ({
   const movedFrame = await canvas.screenshot();
   expect(movedFrame.equals(initialFrame)).toBe(false);
 
-  await holdKey(page, "ArrowRight", 1_200);
+  await holdUntilText(page, "ArrowRight", "#candy-counter", "Candies: 1/1");
   await expect(page.locator("#candy-counter")).toHaveText("Candies: 1/1");
   await expect(page.locator("#game-status")).toHaveText("The first candy is yours.");
 
-  await holdKey(page, "ArrowRight", 1_800);
+  await holdUntilText(
+    page,
+    "ArrowRight",
+    "#game-status",
+    "The edge of the box holds firm.",
+  );
   await expect(page.locator("#game-status")).toHaveText("The edge of the box holds firm.");
 
   await holdKey(page, "ArrowLeft", 900);
@@ -75,7 +98,7 @@ test("exposes diagnostics only in development", async ({ page }) => {
 });
 
 test("starts a clean run after reload", async ({ page }) => {
-  await holdKey(page, "ArrowRight", 1_800);
+  await holdUntilText(page, "ArrowRight", "#candy-counter", "Candies: 1/1");
   await expect(page.locator("#candy-counter")).toHaveText("Candies: 1/1");
 
   await page.reload();
