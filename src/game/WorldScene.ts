@@ -63,6 +63,8 @@ abstract class WorldScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.transitioning = false;
+    this.boundaryMessageShown = false;
     this.drawWorld();
     this.createTextures();
     this.updatePageChrome();

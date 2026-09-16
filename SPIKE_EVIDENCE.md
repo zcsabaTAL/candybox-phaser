@@ -39,8 +39,8 @@ Session 2 must test both scene transitions and minimum viable audio playback. Fu
 - Scope: Candy Box, Village, Fortress entrance, two-way transitions, camera follow, runtime candy continuity, and minimum viable browser audio.
 - Music choice: no player-facing selector. The main theme is active at startup, waits for the first real gesture, and changes automatically at the Fortress entrance.
 - Full dialogue, captions, ducking, preferences, and saved progress remain Session 3 scope.
-- First agent solution accepted without human correction: awaiting user acceptance
-- Human correction rounds: 0 so far
+- First agent solution accepted without human correction: no. Manual testing found a movement lock when revisiting a scene.
+- Human correction rounds: 1. Revisited Phaser scenes retained their transition lock and stopped accepting movement. Scene-entry state is now reset and covered by a repeated round-trip regression test.
 - Agent independently ran the development build: yes
 - Agent independently ran the production build: yes
 - Agent independently ran development Playwright tests: yes, 6 passed

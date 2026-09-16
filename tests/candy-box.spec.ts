@@ -140,6 +140,17 @@ test("queues the main theme, unlocks it with a gesture, and changes it at the fo
   expect(atFortress.source).toContain("/music/fortress-entrance.mp3");
 });
 
+test("keeps movement active when revisiting scenes", async ({ page }) => {
+  test.setTimeout(60_000);
+
+  await goToVillage(page);
+  await holdUntilText(page, "ArrowLeft", "#location-title", "CANDY BOX");
+  await holdUntilText(page, "ArrowRight", "#location-title", "THE VILLAGE");
+  await holdUntilText(page, "ArrowRight", "#location-title", "FORTRESS ENTRANCE");
+  await holdUntilText(page, "ArrowLeft", "#location-title", "THE VILLAGE");
+  await holdUntilText(page, "ArrowRight", "#location-title", "FORTRESS ENTRANCE");
+});
+
 test("constrains all four outer walls in development", async ({ page }) => {
   test.setTimeout(60_000);
   test.skip(profile !== "development", "Exact coordinates are intentionally development-only.");
