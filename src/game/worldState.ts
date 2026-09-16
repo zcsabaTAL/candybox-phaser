@@ -28,6 +28,7 @@ declare global {
 }
 
 const SAVE_KEY = "candyboxPhaserSave";
+const resetRequested = new URLSearchParams(window.location.search).has("newGame");
 const DEFAULT_STATE: RuntimeState = {
   location: "CandyBox",
   position: { x: 105, y: 400 },
@@ -39,6 +40,7 @@ function isLocation(value: unknown): value is LocationKey {
 }
 
 function loadState(): RuntimeState {
+  if (resetRequested) return structuredClone(DEFAULT_STATE);
   try {
     const raw = localStorage.getItem(SAVE_KEY);
     if (!raw) return structuredClone(DEFAULT_STATE);
@@ -70,10 +72,9 @@ export function saveRuntimeState(): void {
   localStorage.setItem(SAVE_KEY, JSON.stringify(save));
 }
 
-export function resetRuntimeState(): void {
-  runtimeState.location = DEFAULT_STATE.location;
-  runtimeState.position = { ...DEFAULT_STATE.position };
-  runtimeState.candyCount = DEFAULT_STATE.candyCount;
-  runtimeState.entryFrom = undefined;
+if (resetRequested) {
   saveRuntimeState();
+  const cleanUrl = new URL(window.location.href);
+  cleanUrl.searchParams.delete("newGame");
+  window.history.replaceState({}, "", cleanUrl);
 }

@@ -239,4 +239,11 @@ test("saves progress across reload and supports a new game", async ({ page }) =>
   await page.getByRole("button", { name: "New game" }).click();
   await expect(page.locator("#location-title")).toHaveText("CANDY BOX");
   await expect(page.locator("#candy-counter")).toHaveText("Candies: 0/1");
+  const freshSave = await page.evaluate(() => JSON.parse(localStorage.getItem("candyboxPhaserSave") ?? "null"));
+  expect(freshSave).toEqual({
+    saveVersion: 1,
+    location: "CandyBox",
+    position: { x: 105, y: 400 },
+    candyCount: 0,
+  });
 });

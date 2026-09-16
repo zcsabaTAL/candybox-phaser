@@ -8,7 +8,7 @@
 - Playable implementation commit: `7d1d08d21709b624095b990d2c49bb5275cd9503`
 - Pages URL: https://zcsabatal.github.io/candybox-phaser/
 - First agent solution accepted without human correction: no. The gameplay was accepted, but the test evidence required reviewer-directed hardening.
-- Human correction rounds: 1
+- Human correction rounds: 2. The second manual pass exposed a final-frame save race that could retain the old location while resetting candies.
 - Agent independently ran the development build: yes
 - Agent independently ran the production build: yes
 - Agent independently ran development Playwright tests: yes, 5 passed after review hardening
@@ -57,6 +57,7 @@ Session 2 must test both scene transitions and minimum viable audio playback. Fu
 - Agent independently completed browser verification: yes, automated interaction and persistence coverage plus visual Chromium screenshot inspection
 - Playwright test-level retries: 0
 - Post-review coverage: New game writes a known version-1 default before reload, and horizontal scene transitions require the player to be inside the visible doorway opening.
+- New game hardening: restart is now signaled in the navigation URL and the newly loaded runtime writes the default save, so the departing scene cannot overwrite it.
 - Agent independently ran the development build: yes
 - Agent independently ran the production build: yes
 - Agent independently ran development Playwright tests: yes, 6 passed
