@@ -1,0 +1,119 @@
+:root {
+  color: #f8ead2;
+  background: #090611;
+  font-family: Georgia, "Times New Roman", serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(102, 55, 133, 0.28), transparent 38rem),
+    linear-gradient(160deg, #11091b, #05030a 70%);
+}
+
+.game-shell {
+  width: min(900px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 28px 0 36px;
+}
+
+.game-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 14px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: #caa7db;
+  font-family: system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  color: #fff1bc;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 28px rgba(255, 197, 95, 0.32);
+}
+
+.counter {
+  margin: 0 0 8px;
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 220, 143, 0.45);
+  border-radius: 999px;
+  background: rgba(31, 18, 42, 0.88);
+  color: #ffd978;
+  font-family: system-ui, sans-serif;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.game-frame {
+  overflow: hidden;
+  border: 1px solid rgba(226, 185, 255, 0.4);
+  border-radius: 18px;
+  background: #130b1d;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55), inset 0 0 50px rgba(113, 63, 139, 0.12);
+}
+
+#game {
+  aspect-ratio: 5 / 3;
+  width: 100%;
+}
+
+#game canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 12px 6px 0;
+  color: #bcaec6;
+  font-family: system-ui, sans-serif;
+  font-size: 0.9rem;
+}
+
+footer p {
+  margin: 0;
+}
+
+.status {
+  color: #dcc5e8;
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .game-header,
+  footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .counter {
+    margin: 0;
+  }
+
+  .status {
+    text-align: left;
+  }
+}

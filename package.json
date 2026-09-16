@@ -1,0 +1,27 @@
+{
+  "name": "candybox-phaser",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "vite --mode development",
+    "build:dev": "tsc -b && vite build --mode development --outDir dist-development",
+    "build:prod": "tsc -b && vite build --mode production --outDir dist-production",
+    "preview:dev": "vite preview --outDir dist-development --host 127.0.0.1 --port 4173 --strictPort",
+    "preview:prod": "vite preview --outDir dist-production --host 127.0.0.1 --port 4173 --strictPort",
+    "test": "npm run test:dev && npm run test:prod",
+    "test:dev": "CANDYBOX_TEST_PROFILE=development playwright test",
+    "test:prod": "CANDYBOX_TEST_PROFILE=production playwright test"
+  },
+  "dependencies": {
+    "phaser": "3.90.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "typescript": "7.0.2",
+    "vite": "8.3.0"
+  }
+}

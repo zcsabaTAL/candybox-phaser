@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="The first playable Phaser prototype for the Candy Box successor."
+    />
+    <title>Candy Box Phaser Prototype</title>
+  </head>
+  <body>
+    <main class="game-shell">
+      <header class="game-header">
+        <div>
+          <p class="eyebrow">A tiny new beginning</p>
+          <h1>CANDY BOX</h1>
+        </div>
+        <p id="candy-counter" class="counter" aria-live="polite">Candies: 0/1</p>
+      </header>
+      <section class="game-frame" aria-label="Candy Box game area">
+        <div id="game"></div>
+      </section>
+      <footer>
+        <p>Move with WASD or the arrow keys. Find the glowing candy.</p>
+        <p id="game-status" class="status" aria-live="polite">The candy is waiting.</p>
+      </footer>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
