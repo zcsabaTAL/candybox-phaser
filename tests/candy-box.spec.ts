@@ -141,6 +141,7 @@ test("queues the main theme, unlocks it with a gesture, and changes it at the fo
 });
 
 test("constrains all four outer walls in development", async ({ page }) => {
+  test.setTimeout(60_000);
   test.skip(profile !== "development", "Exact coordinates are intentionally development-only.");
   expect(await holdUntilCoordinate(page, "ArrowLeft", "x", 56, "atMost")).toBe(56);
   expect(await holdUntilCoordinate(page, "ArrowUp", "y", 100, "atMost")).toBe(100);

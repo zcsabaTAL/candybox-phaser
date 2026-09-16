@@ -48,4 +48,4 @@ Session 2 must test both scene transitions and minimum viable audio playback. Fu
 - Agent independently completed browser verification: yes, automated traversal plus visual inspection of a locally rendered Chromium screenshot
 - Playwright test-level retries: 0
 - Assertion-level timing tolerance: at most 12 rounds of 500 ms keyboard input for long-distance traversal, plus bounded Playwright polling for actual audio playback state
-- Agent correction rounds before human review: 1. The first CI run exposed an overly narrow entry-position assertion while the held movement key remained active across the transition.
+- Agent correction rounds before human review: 2. CI exposed an overly narrow entry-position assertion while the held movement key remained active across the transition, then the slower runner showed that the full four-wall route needs a 60-second test budget.
