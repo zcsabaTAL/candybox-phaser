@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { CandyBoxScene } from "./CandyBoxScene";
+import { CandyBoxScene, FortressEntranceScene, VillageScene } from "./WorldScene";
 
 export const gameConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -17,5 +17,5 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  scene: [CandyBoxScene],
+  scene: [CandyBoxScene, VillageScene, FortressEntranceScene],
 };

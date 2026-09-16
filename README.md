@@ -2,12 +2,14 @@
 
 This separate prototype tests how productively a small Candy Box successor can be built and verified with AI coding agents.
 
-## Session 1 scope
+## Playable scope
 
 - Phaser 3 with strict modern TypeScript and Vite.
-- One Candy Box scene.
+- A three-location mini-world: Candy Box, Village, and Fortress entrance.
 - Keyboard movement and boundary collision.
 - One collectible candy and a visible counter.
+- Camera follow, two-way scene transitions, and runtime candy continuity.
+- Main theme playback after the first browser gesture, with an automatic Fortress theme change.
 - Development and production Playwright gates.
 - GitHub Pages deployment only after both profiles pass.
 

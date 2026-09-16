@@ -31,3 +31,19 @@ Session 2 must test both scene transitions and minimum viable audio playback. Fu
 - Check audio only after that gesture.
 - Verify the actual `<audio>` element state, especially `paused` and `volume`, rather than trusting an internal audio API status.
 - Exercise the check across at least one location transition so scene lifecycle and sound lifecycle are tested together.
+
+## Session 2: mini-world
+
+- Started: 2026-09-16T20:45:00+02:00
+- Scope: Candy Box, Village, Fortress entrance, two-way transitions, camera follow, runtime candy continuity, and minimum viable browser audio.
+- Music choice: no player-facing selector. The main theme is active at startup, waits for the first real gesture, and changes automatically at the Fortress entrance.
+- Full dialogue, captions, ducking, preferences, and saved progress remain Session 3 scope.
+- First agent solution accepted without human correction: awaiting user acceptance
+- Human correction rounds: 0 so far
+- Agent independently ran the development build: yes
+- Agent independently ran the production build: yes
+- Agent independently ran development Playwright tests: yes, 6 passed
+- Agent independently ran production Playwright tests: yes, 5 passed and 1 development-only test skipped
+- Agent independently completed browser verification: yes, automated traversal plus visual inspection of a locally rendered Chromium screenshot
+- Playwright test-level retries: 0
+- Assertion-level timing tolerance: at most 12 rounds of 500 ms keyboard input for long-distance traversal, plus bounded Playwright polling for actual audio playback state
