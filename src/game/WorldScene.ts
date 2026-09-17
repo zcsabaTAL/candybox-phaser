@@ -181,10 +181,33 @@ abstract class WorldScene extends Phaser.Scene {
         : "The road is open.";
     }
     if (prompt) prompt.hidden = true;
+    this.updateObjectiveUI();
 
     window.dispatchEvent(new CustomEvent<LocationKey>("candybox:location", {
       detail: this.definition.key,
     }));
+  }
+
+  private updateObjectiveUI(): void {
+    const candyGoal = document.querySelector<HTMLLIElement>("#goal-candy");
+    const fortressGoal = document.querySelector<HTMLLIElement>("#goal-fortress");
+    const objective = document.querySelector<HTMLParagraphElement>("#objective-text");
+    const completion = document.querySelector<HTMLElement>("#completion-card");
+    const candyComplete = runtimeState.candyCount === 1;
+    const fortressComplete = candyComplete && this.definition.key === "FortressEntrance";
+
+    candyGoal?.classList.toggle("complete", candyComplete);
+    fortressGoal?.classList.toggle("complete", fortressComplete);
+    if (candyGoal) candyGoal.setAttribute("aria-current", candyComplete ? "false" : "step");
+    if (fortressGoal) fortressGoal.setAttribute("aria-current", candyComplete && !fortressComplete ? "step" : "false");
+    if (objective) {
+      objective.textContent = fortressComplete
+        ? "Prototype goal complete."
+        : candyComplete
+          ? "Follow the marked doorways to the Fortress Entrance."
+          : "Find the glowing candy in the Candy Box.";
+    }
+    if (completion) completion.hidden = !fortressComplete;
   }
 
   private drawWorld(): void {
@@ -288,6 +311,7 @@ abstract class WorldScene extends Phaser.Scene {
     const status = document.querySelector<HTMLParagraphElement>("#game-status");
     if (counter) counter.textContent = "Candies: 1/1";
     if (status) status.textContent = "The first candy is yours.";
+    this.updateObjectiveUI();
     this.cameras.main.flash(180, 255, 221, 117, false);
     this.publishDebugState();
   }

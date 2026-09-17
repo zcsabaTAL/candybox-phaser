@@ -8,7 +8,7 @@
 - Playable implementation commit: `7d1d08d21709b624095b990d2c49bb5275cd9503`
 - Pages URL: https://zcsabatal.github.io/candybox-phaser/
 - First agent solution accepted without human correction: no. The gameplay was accepted, but the test evidence required reviewer-directed hardening.
-- Human correction rounds: 2. The second manual pass exposed a final-frame save race that could retain the old location while resetting candies.
+- Human correction rounds: 1. The gameplay was accepted, but reviewer feedback required stronger movement and collision evidence.
 - Agent independently ran the development build: yes
 - Agent independently ran the production build: yes
 - Agent independently ran development Playwright tests: yes, 5 passed after review hardening
@@ -41,6 +41,11 @@ Session 2 must test both scene transitions and minimum viable audio playback. Fu
 - Full dialogue, captions, ducking, preferences, and saved progress remain Session 3 scope.
 - First agent solution accepted without human correction: no. Manual testing found a movement lock when revisiting a scene.
 - Human correction rounds: 1. Revisited Phaser scenes retained their transition lock and stopped accepting movement. Scene-entry state is now reset and covered by a repeated round-trip regression test.
+- Agent independently ran the development and production builds: yes
+- Agent independently ran development Playwright tests: yes, 7 passed
+- Agent independently ran production Playwright tests: yes, 6 passed and 1 development-only test skipped
+- Playwright test-level retries: 0
+- Assertion-level timing tolerance: at most 12 rounds of 500 ms keyboard input for long-distance traversal, plus bounded polling for actual audio playback state
 
 ## Session 3: interaction and save
 
@@ -48,21 +53,27 @@ Session 2 must test both scene transitions and minimum viable audio playback. Fu
 - Scope: one blacksmith interaction, recorded dialogue, captions, music ducking, and a clean versioned local save for location, position, and candy count.
 - Save format: `saveVersion: 1`; no Candy Box 2 compatibility or migration layer.
 - First agent solution accepted without human correction: no. Manual review requested deterministic New game behavior and doorway-only location transitions.
-- Human correction rounds: 1
+- Human correction rounds: 2. Manual review first required deterministic New game behavior and doorway-only travel. The follow-up exposed a final-frame save race that could retain the old location while resetting candies.
 - Agent correction rounds before human review: 2. The browser suite found position staleness at reload and a same-frame transition save ordering fault.
 - Agent independently ran the development build: yes
 - Agent independently ran the production build: yes
-- Agent independently ran development Playwright tests: yes, 8 passed
-- Agent independently ran production Playwright tests: yes, 7 passed and 1 development-only test skipped
+- Agent independently ran development Playwright tests: yes, 9 passed
+- Agent independently ran production Playwright tests: yes, 8 passed and 1 development-only test skipped
 - Agent independently completed browser verification: yes, automated interaction and persistence coverage plus visual Chromium screenshot inspection
 - Playwright test-level retries: 0
 - Post-review coverage: New game writes a known version-1 default before reload, and horizontal scene transitions require the player to be inside the visible doorway opening.
 - New game hardening: restart is now signaled in the navigation URL and the newly loaded runtime writes the default save, so the departing scene cannot overwrite it.
-- Agent independently ran the development build: yes
-- Agent independently ran the production build: yes
-- Agent independently ran development Playwright tests: yes, 6 passed
-- Agent independently ran production Playwright tests: yes, 5 passed and 1 development-only test skipped
-- Agent independently completed browser verification: yes, automated traversal plus visual inspection of a locally rendered Chromium screenshot
+
+## Session 4: decision build
+
+- Started: 2026-09-17
+- Scope: visible two-step objective, concise control guidance, explicit Fortress completion feedback, final regression coverage, and a written spike decision.
+- Save format remains `saveVersion: 1`. Completion is derived from the existing candy and location state.
+- Technical recommendation: keep Phaser as the candidate foundation and proceed to a target-player test before starting a broader feature phase.
+- Product recommendation: pending observation of two target players aged 11 to 12.
 - Playwright test-level retries: 0
-- Assertion-level timing tolerance: at most 12 rounds of 500 ms keyboard input for long-distance traversal, plus bounded Playwright polling for actual audio playback state
-- Agent correction rounds before human review: 2. CI exposed an overly narrow entry-position assertion while the held movement key remained active across the transition, then the slower runner showed that the full four-wall route needs a 60-second test budget.
+- Assertion-level timing tolerance: at most 12 rounds of 500 ms keyboard input for long-distance traversal, plus bounded polling for actual audio playback state
+- Agent independently ran the development and production builds: yes
+- Agent independently ran development Playwright tests: yes, 10 passed
+- Agent independently ran production Playwright tests: yes, 9 passed and 1 development-only test skipped
+- Final deployment evidence: pending CI and Pages verification

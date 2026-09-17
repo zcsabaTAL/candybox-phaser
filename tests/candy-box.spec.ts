@@ -103,6 +103,27 @@ test("loads the Candy Box in the requested build profile", async ({ page }) => {
   await expect(page.locator("#location-mood")).toHaveText("A single candy hums in the dark.");
   await expect(page.locator("#candy-counter")).toHaveText("Candies: 0/1");
   await expect(page.locator("body")).toHaveAttribute("data-build-mode", profile);
+  await expect(page.locator("#objective-text")).toHaveText("Find the glowing candy in the Candy Box.");
+  await expect(page.locator("#completion-card")).toBeHidden();
+});
+
+test("guides the player to the fortress and marks the prototype complete", async ({ page }) => {
+  test.setTimeout(60_000);
+  await expect(page.locator("#goal-candy")).not.toHaveClass(/complete/);
+  await holdUntilText(page, "ArrowRight", "#candy-counter", "Candies: 1/1");
+  await expect(page.locator("#goal-candy")).toHaveClass(/complete/);
+  await expect(page.locator("#objective-text")).toHaveText(
+    "Follow the marked doorways to the Fortress Entrance.",
+  );
+
+  await goToFortress(page);
+  await expect(page.locator("#goal-fortress")).toHaveClass(/complete/);
+  await expect(page.locator("#objective-text")).toHaveText("Prototype goal complete.");
+  await expect(page.locator("#completion-card")).toBeVisible();
+  await expect(page.locator("#completion-card")).toContainText("You reached the Fortress Entrance.");
+
+  await page.reload();
+  await expect(page.locator("#completion-card")).toBeVisible();
 });
 
 test("moves, collects the candy, and keeps it through the mini-world", async ({ page }) => {
@@ -249,6 +270,8 @@ test("saves progress across reload and supports a new game", async ({ page }) =>
   await page.getByRole("button", { name: "New game" }).click();
   await expect(page.locator("#location-title")).toHaveText("CANDY BOX");
   await expect(page.locator("#candy-counter")).toHaveText("Candies: 0/1");
+  await expect(page.locator("#objective-text")).toHaveText("Find the glowing candy in the Candy Box.");
+  await expect(page.locator("#completion-card")).toBeHidden();
   const freshSave = await page.evaluate(() => JSON.parse(localStorage.getItem("candyboxPhaserSave") ?? "null"));
   expect(freshSave).toEqual({
     saveVersion: 1,

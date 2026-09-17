@@ -95,6 +95,69 @@ h1 {
   font: 700 0.8rem system-ui, sans-serif;
 }
 
+.objective-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 0 12px;
+  padding: 12px 16px;
+  border: 1px solid rgba(226, 185, 255, 0.24);
+  border-radius: 14px;
+  background: rgba(20, 12, 30, 0.82);
+  font-family: system-ui, sans-serif;
+}
+
+.objective-label,
+.completion-label {
+  margin: 0 0 3px;
+  color: #caa7db;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.objective-text {
+  margin: 0;
+  color: #fff1bc;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.objective-steps {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.objective-steps li {
+  padding: 7px 10px;
+  border: 1px solid rgba(255, 217, 120, 0.25);
+  border-radius: 999px;
+  color: #bcaec6;
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.objective-steps li::before {
+  content: "○ ";
+  color: #d5a85d;
+}
+
+.objective-steps li.complete {
+  border-color: rgba(153, 220, 164, 0.4);
+  color: #bde8c4;
+}
+
+.objective-steps li.complete::before {
+  content: "✓ ";
+  color: #8ed49a;
+}
+
 .interaction-prompt,
 .dialogue-caption {
   width: fit-content;
@@ -107,6 +170,28 @@ h1 {
   color: #fff1bc;
   font: 700 0.9rem system-ui, sans-serif;
   text-align: center;
+}
+
+.completion-card {
+  margin: 12px 0 0;
+  padding: 15px 18px;
+  border: 1px solid rgba(255, 217, 120, 0.55);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(87, 44, 39, 0.94), rgba(31, 18, 42, 0.96));
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.28);
+  text-align: center;
+}
+
+.completion-card h2 {
+  margin: 2px 0 4px;
+  color: #fff1bc;
+  font-size: 1.35rem;
+}
+
+.completion-card > p:last-child {
+  margin: 0;
+  color: #dcc5e8;
+  font-style: italic;
 }
 
 .dialogue-caption {
@@ -156,10 +241,15 @@ footer p {
 
 @media (max-width: 640px) {
   .game-header,
+  .objective-panel,
   footer {
     align-items: flex-start;
     flex-direction: column;
     gap: 8px;
+  }
+
+  .objective-steps {
+    flex-wrap: wrap;
   }
 
   .counter {

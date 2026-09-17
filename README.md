@@ -12,6 +12,7 @@ This separate prototype tests how productively a small Candy Box successor can b
 - Main theme playback after the first browser gesture, with an automatic Fortress theme change.
 - A blacksmith interaction with recorded dialogue, captions, and background-music ducking.
 - Versioned local save for location, position, and candy count, plus a New game reset.
+- A visible two-step objective and an explicit prototype completion state at the Fortress entrance.
 - Development and production Playwright gates.
 - GitHub Pages deployment only after both profiles pass.
 

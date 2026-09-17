@@ -22,13 +22,28 @@
           <button id="new-game" class="new-game" type="button">New game</button>
         </div>
       </header>
+      <section class="objective-panel" aria-labelledby="objective-label">
+        <div>
+          <p id="objective-label" class="objective-label">Current objective</p>
+          <p id="objective-text" class="objective-text">Find the glowing candy in the Candy Box.</p>
+        </div>
+        <ol class="objective-steps" aria-label="Goal progress">
+          <li id="goal-candy">Collect the candy</li>
+          <li id="goal-fortress">Reach the Fortress Entrance</li>
+        </ol>
+      </section>
       <section class="game-frame" aria-label="Candy Box game area">
         <div id="game"></div>
       </section>
       <p id="interaction-prompt" class="interaction-prompt" hidden>Press E to talk to the blacksmith</p>
       <p id="dialogue-caption" class="dialogue-caption" aria-live="polite" hidden></p>
+      <section id="completion-card" class="completion-card" aria-live="polite" hidden>
+        <p class="completion-label">Prototype complete</p>
+        <h2>You reached the Fortress Entrance.</h2>
+        <p>The stone gate waits for the next chapter.</p>
+      </section>
       <footer>
-        <p>Move with WASD or the arrow keys. Follow the road to the fortress.</p>
+        <p><strong>Move:</strong> WASD / arrows &nbsp; <strong>Interact:</strong> E &nbsp; <strong>Travel:</strong> marked doorways</p>
         <p id="game-status" class="status" aria-live="polite">The candy is waiting.</p>
       </footer>
     </main>
