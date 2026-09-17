@@ -13,6 +13,7 @@ This separate prototype tests how productively a small Candy Box successor can b
 - A blacksmith interaction with recorded dialogue, captions, and background-music ducking.
 - Versioned local save for location, position, and candy count, plus a New game reset.
 - A visible two-step objective and an explicit prototype completion state at the Fortress entrance.
+- An explorable Forge with passive candy production, one collectible lollipop, a 150-candy Wooden Sword purchase, and a persistent inventory.
 - Development and production Playwright gates.
 - GitHub Pages deployment only after both profiles pass.
 

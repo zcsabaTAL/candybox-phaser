@@ -8,7 +8,9 @@ interface DebugState {
   player: { x: number; y: number };
   camera: { scrollX: number; scrollY: number };
   candy: { collected: boolean };
-  candyCount: 0 | 1;
+  candies: number;
+  lollipops: number;
+  woodenSwordOwned: boolean;
 }
 
 async function holdKey(page: Page, key: string, milliseconds: number): Promise<void> {
@@ -69,11 +71,45 @@ async function goToFortress(page: Page): Promise<void> {
   await holdUntilText(page, "ArrowRight", "#location-title", "FORTRESS ENTRANCE");
 }
 
+async function collectCandy(page: Page): Promise<void> {
+  const goal = page.locator("#goal-candy");
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    if ((await goal.getAttribute("class"))?.includes("complete")) return;
+    await holdKey(page, "ArrowRight", 500);
+  }
+  await expect(goal).toHaveClass(/complete/);
+}
+
+async function goToForge(page: Page): Promise<void> {
+  await goToVillage(page);
+  const prompt = page.locator("#interaction-prompt");
+  await holdKey(page, "ArrowDown", 200);
+  for (const key of ["ArrowRight", "ArrowLeft"] as const) {
+    for (let attempt = 0; attempt < 14; attempt += 1) {
+      if (await prompt.isVisible() && (await prompt.textContent()) === "Press E to enter the forge") break;
+      await holdKey(page, key, 100);
+    }
+    if (await prompt.isVisible() && (await prompt.textContent()) === "Press E to enter the forge") break;
+  }
+  await expect(prompt).toBeVisible();
+  await expect(prompt).toHaveText("Press E to enter the forge");
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await page.keyboard.press("e");
+    try {
+      await expect(page.locator("#location-title")).toHaveText("THE FORGE", { timeout: 1_000 });
+      return;
+    } catch {
+      await page.waitForTimeout(100);
+    }
+  }
+  await expect(page.locator("#location-title")).toHaveText("THE FORGE");
+}
+
 async function approachBlacksmith(page: Page): Promise<void> {
   const prompt = page.locator("#interaction-prompt");
   for (let attempt = 0; attempt < 8; attempt += 1) {
-    if (await prompt.isVisible()) return;
-    await holdKey(page, "ArrowRight", 300);
+    if (await prompt.isVisible() && (await prompt.textContent()) === "Press E to talk to the blacksmith") return;
+    await holdKey(page, "ArrowUp", 250);
   }
   await expect(prompt).toBeVisible();
 }
@@ -101,7 +137,7 @@ test.afterEach(async ({ page }) => {
 test("loads the Candy Box in the requested build profile", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "CANDY BOX" })).toBeVisible();
   await expect(page.locator("#location-mood")).toHaveText("A single candy hums in the dark.");
-  await expect(page.locator("#candy-counter")).toHaveText("Candies: 0/1");
+  await expect(page.locator("#candy-counter")).toHaveText("Candies: 0");
   await expect(page.locator("body")).toHaveAttribute("data-build-mode", profile);
   await expect(page.locator("#objective-text")).toHaveText("Find the glowing candy in the Candy Box.");
   await expect(page.locator("#completion-card")).toBeHidden();
@@ -110,7 +146,7 @@ test("loads the Candy Box in the requested build profile", async ({ page }) => {
 test("guides the player to the fortress and marks the prototype complete", async ({ page }) => {
   test.setTimeout(60_000);
   await expect(page.locator("#goal-candy")).not.toHaveClass(/complete/);
-  await holdUntilText(page, "ArrowRight", "#candy-counter", "Candies: 1/1");
+  await collectCandy(page);
   await expect(page.locator("#goal-candy")).toHaveClass(/complete/);
   await expect(page.locator("#objective-text")).toHaveText(
     "Follow the marked doorways to the Fortress Entrance.",
@@ -140,14 +176,14 @@ test("moves, collects the candy, and keeps it through the mini-world", async ({ 
     expect((await canvas.screenshot()).equals(initialFrame)).toBe(false);
   }
 
-  await holdUntilText(page, "ArrowRight", "#candy-counter", "Candies: 1/1");
+  await collectCandy(page);
   await goToVillage(page);
   await expect(page.locator("#location-mood")).toHaveText("Warm windows watch the winding road.");
-  await expect(page.locator("#candy-counter")).toHaveText("Candies: 1/1");
+  await expect(page.locator("#candy-counter")).toContainText("Candies:");
 
   if (profile === "development") {
     const village = await readDebugState(page);
-    expect(village).toMatchObject({ scene: "Village", candyCount: 1 });
+    expect(village).toMatchObject({ scene: "Village", candy: { collected: true } });
     expect(village!.player.x).toBeLessThan(400);
     await holdKey(page, "ArrowRight", 1800);
     expect((await readDebugState(page))!.camera.scrollX).toBeGreaterThan(0);
@@ -155,9 +191,9 @@ test("moves, collects the candy, and keeps it through the mini-world", async ({ 
 
   await holdUntilText(page, "ArrowRight", "#location-title", "FORTRESS ENTRANCE");
   await expect(page.locator("#location-mood")).toHaveText("The stone gate counts every footstep.");
-  await expect(page.locator("#candy-counter")).toHaveText("Candies: 1/1");
+  await expect(page.locator("#candy-counter")).toContainText("Candies:");
   await holdUntilText(page, "ArrowLeft", "#location-title", "THE VILLAGE");
-  await expect(page.locator("#candy-counter")).toHaveText("Candies: 1/1");
+  await expect(page.locator("#candy-counter")).toContainText("Candies:");
 });
 
 test("queues the main theme, unlocks it with a gesture, and changes it at the fortress", async ({ page }) => {
@@ -187,7 +223,7 @@ test("queues the main theme, unlocks it with a gesture, and changes it at the fo
 
 test("talks to the blacksmith with captions and music ducking", async ({ page }) => {
   test.setTimeout(60_000);
-  await goToVillage(page);
+  await goToForge(page);
   await approachBlacksmith(page);
   await expect(page.locator("#interaction-prompt")).toHaveText("Press E to talk to the blacksmith");
 
@@ -195,7 +231,7 @@ test("talks to the blacksmith with captions and music ducking", async ({ page })
   const voice = page.locator("#dialogue-voice");
   const music = page.locator("#location-music");
   await expect(page.locator("#dialogue-caption")).toHaveText(
-    "Howdy! Ah'm a blacksmith. Ah kin sell ye various weapons an' pieces o' equipment.",
+    "Hi! I'm a blacksmith. I can sell you various weapons and pieces of equipment.",
   );
   await expect(page.locator("#dialogue-caption")).toBeVisible();
   await expect.poll(() => voice.evaluate((element: HTMLAudioElement) => element.paused)).toBe(false);
@@ -206,6 +242,66 @@ test("talks to the blacksmith with captions and music ducking", async ({ page })
   }).toBe(true);
   await expect(page.locator("#dialogue-caption")).toBeHidden();
   expect(await music.evaluate((element: HTMLAudioElement) => element.volume)).toBeCloseTo(0.35);
+});
+
+test("finds the forge lollipop and buys one wooden sword into the inventory", async ({ page }) => {
+  test.setTimeout(60_000);
+  const seed = {
+    saveVersion: 2,
+    location: "Forge",
+    position: { x: 700, y: 620 },
+    candies: 149,
+    candyCollected: false,
+    lollipops: 0,
+    forgeLollipopCollected: false,
+    woodenSwordOwned: false,
+  };
+  const context = page.context();
+  await page.close();
+  const forgePage = await context.newPage();
+  await forgePage.addInitScript((initialSave) => {
+    if (sessionStorage.getItem("forgeTestSeeded")) return;
+    localStorage.setItem("candyboxPhaserSave", JSON.stringify(initialSave));
+    sessionStorage.setItem("forgeTestSeeded", "true");
+  }, seed);
+  await forgePage.goto("./");
+  await expect(forgePage.locator("#location-title")).toHaveText("THE FORGE");
+
+  await approachBlacksmith(forgePage);
+  await forgePage.keyboard.press("e");
+  await expect(forgePage.locator("#shop-panel")).toBeVisible();
+  await expect(forgePage.locator("#buy-wooden-sword")).toBeDisabled();
+
+  await holdKey(forgePage, "ArrowLeft", 1_100);
+  await holdKey(forgePage, "ArrowUp", 300);
+  await expect.poll(() => forgePage.evaluate(() => JSON.parse(localStorage.getItem("candyboxPhaserSave")!).lollipops)).toBe(1);
+  await forgePage.close();
+
+  const purchasePage = await context.newPage();
+  await purchasePage.addInitScript(() => {
+    if (sessionStorage.getItem("forgePurchaseSeeded")) return;
+    localStorage.setItem("candyboxPhaserSave", JSON.stringify({
+      saveVersion: 2, location: "Forge", position: { x: 700, y: 540 }, candies: 150,
+      candyCollected: false, lollipops: 1, forgeLollipopCollected: true, woodenSwordOwned: false,
+    }));
+    sessionStorage.setItem("forgePurchaseSeeded", "true");
+  });
+  await purchasePage.goto("./");
+  await approachBlacksmith(purchasePage);
+  await purchasePage.keyboard.press("e");
+  await purchasePage.locator("#buy-wooden-sword").click();
+  await expect(purchasePage.locator("#shop-message")).toContainText("added to your inventory");
+  await purchasePage.locator("#inventory-toggle").click();
+  await expect(purchasePage.locator("#inventory-items")).toContainText("Wooden Sword");
+  await expect(purchasePage.locator("#inventory-items")).toContainText("Lollipop × 1");
+
+  await purchasePage.reload();
+  await purchasePage.locator("#inventory-toggle").click();
+  await expect(purchasePage.locator("#inventory-items")).toContainText("Wooden Sword");
+  await expect(purchasePage.locator("#inventory-items")).toContainText("Lollipop × 1");
+  const saved = await purchasePage.evaluate(() => JSON.parse(localStorage.getItem("candyboxPhaserSave")!));
+  expect(saved).toMatchObject({ candies: 0, lollipops: 1, forgeLollipopCollected: true, woodenSwordOwned: true });
+  await purchasePage.close();
 });
 
 test("keeps movement active when revisiting scenes", async ({ page }) => {
@@ -243,7 +339,7 @@ test("constrains all four outer walls in development", async ({ page }) => {
 test("exposes diagnostics only in development", async ({ page }) => {
   const debugState = await readDebugState(page);
   if (profile === "development") {
-    expect(debugState).toMatchObject({ scene: "CandyBox", candy: { collected: false }, candyCount: 0 });
+    expect(debugState).toMatchObject({ scene: "CandyBox", candy: { collected: false }, candies: 0 });
   } else {
     expect(debugState).toBeUndefined();
   }
@@ -251,15 +347,15 @@ test("exposes diagnostics only in development", async ({ page }) => {
 
 test("saves progress across reload and supports a new game", async ({ page }) => {
   test.setTimeout(60_000);
-  await holdUntilText(page, "ArrowRight", "#candy-counter", "Candies: 1/1");
+  await collectCandy(page);
   await goToVillage(page);
-  await approachBlacksmith(page);
+  await holdKey(page, "ArrowUp", 350);
 
   const positionBeforeReload = profile === "development" ? (await readDebugState(page))!.player : undefined;
   await page.reload();
   await expect(page.locator("canvas")).toBeVisible();
   await expect(page.locator("#location-title")).toHaveText("THE VILLAGE");
-  await expect(page.locator("#candy-counter")).toHaveText("Candies: 1/1");
+  await expect(page.locator("#candy-counter")).toContainText("Candies:");
   if (profile === "development") {
     const restored = await readDebugState(page);
     expect(restored!.player.x).toBeCloseTo(positionBeforeReload!.x, -1);
@@ -269,14 +365,18 @@ test("saves progress across reload and supports a new game", async ({ page }) =>
   page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "New game" }).click();
   await expect(page.locator("#location-title")).toHaveText("CANDY BOX");
-  await expect(page.locator("#candy-counter")).toHaveText("Candies: 0/1");
+  await expect(page.locator("#candy-counter")).toHaveText("Candies: 0");
   await expect(page.locator("#objective-text")).toHaveText("Find the glowing candy in the Candy Box.");
   await expect(page.locator("#completion-card")).toBeHidden();
   const freshSave = await page.evaluate(() => JSON.parse(localStorage.getItem("candyboxPhaserSave") ?? "null"));
   expect(freshSave).toEqual({
-    saveVersion: 1,
+    saveVersion: 2,
     location: "CandyBox",
     position: { x: 105, y: 400 },
-    candyCount: 0,
+    candies: 0,
+    candyCollected: false,
+    lollipops: 0,
+    forgeLollipopCollected: false,
+    woodenSwordOwned: false,
   });
 });

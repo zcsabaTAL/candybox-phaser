@@ -18,7 +18,8 @@
           <p id="location-mood" class="location-mood">A single candy hums in the dark.</p>
         </div>
         <div class="header-actions">
-          <p id="candy-counter" class="counter" aria-live="polite">Candies: 0/1</p>
+          <p id="candy-counter" class="counter" aria-live="polite">Candies: 0</p>
+          <button id="inventory-toggle" class="new-game" type="button">Inventory</button>
           <button id="new-game" class="new-game" type="button">New game</button>
         </div>
       </header>
@@ -37,6 +38,22 @@
       </section>
       <p id="interaction-prompt" class="interaction-prompt" hidden>Press E to talk to the blacksmith</p>
       <p id="dialogue-caption" class="dialogue-caption" aria-live="polite" hidden></p>
+      <section id="shop-panel" class="panel-card shop-panel" aria-labelledby="shop-title" hidden>
+        <div>
+          <p class="objective-label">Blacksmith's offer</p>
+          <h2 id="shop-title">Wooden Sword</h2>
+          <p>A simple first weapon. Price: 150 candies.</p>
+        </div>
+        <button id="buy-wooden-sword" type="button">Buy for 150 candies</button>
+        <p id="shop-message" class="shop-message" aria-live="polite"></p>
+      </section>
+      <section id="inventory-panel" class="panel-card inventory-panel" aria-labelledby="inventory-title" hidden>
+        <div class="panel-heading">
+          <div><p class="objective-label">Your belongings</p><h2 id="inventory-title">Inventory</h2></div>
+          <button id="inventory-close" type="button" aria-label="Close inventory">Close</button>
+        </div>
+        <ul id="inventory-items"><li class="empty-inventory">Nothing yet.</li></ul>
+      </section>
       <section id="completion-card" class="completion-card" aria-live="polite" hidden>
         <p class="completion-label">Prototype complete</p>
         <h2>You reached the Fortress Entrance.</h2>

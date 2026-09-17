@@ -3,6 +3,7 @@ import type { LocationKey } from "../game/worldState";
 const TRACKS: Record<LocationKey, string> = {
   CandyBox: "music/main-theme.mp3",
   Village: "music/main-theme.mp3",
+  Forge: "music/main-theme.mp3",
   FortressEntrance: "music/fortress-entrance.mp3",
 };
 

@@ -77,3 +77,15 @@ Session 2 must test both scene transitions and minimum viable audio playback. Fu
 - Agent independently ran development Playwright tests: yes, 10 passed
 - Agent independently ran production Playwright tests: yes, 9 passed and 1 development-only test skipped
 - Final deployment evidence: pending CI and Pages verification
+
+## Session 5: Forge and inventory
+
+- Started: 2026-09-17
+- Scope: original-game candy production, enterable Forge, one collectible lollipop, 150-candy Wooden Sword purchase, inventory, and version-2 save migration.
+- Corrected caption: `Hi! I'm a blacksmith. I can sell you various weapons and pieces of equipment.`
+- Agent independently ran the development and production builds: yes
+- Agent independently ran development Playwright tests: yes, 11 passed
+- Agent independently ran production Playwright tests: yes, 10 passed and 1 development-only test skipped
+- Human correction rounds before manual review: 0
+- Agent correction rounds: 3, covering transition save ordering, isolated save seeding, and deterministic Forge-door interaction.
+- Final deployment evidence: pending CI and Pages verification

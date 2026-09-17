@@ -194,6 +194,76 @@ h1 {
   font-style: italic;
 }
 
+.panel-card {
+  margin: 12px 0 0;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 217, 120, 0.42);
+  border-radius: 14px;
+  background: rgba(19, 11, 29, 0.97);
+  color: #dcc5e8;
+  font-family: system-ui, sans-serif;
+}
+
+.panel-card h2,
+.panel-card p {
+  margin: 0 0 6px;
+}
+
+.panel-card button {
+  padding: 9px 13px;
+  border: 1px solid rgba(255, 217, 120, 0.48);
+  border-radius: 9px;
+  background: #6e4938;
+  color: #fff1bc;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.panel-card button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.shop-panel {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px 18px;
+}
+
+.shop-message {
+  grid-column: 1 / -1;
+  color: #bde8c4;
+  font-weight: 700;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+#inventory-items {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+#inventory-items li {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+#inventory-items li span {
+  color: #bcaec6;
+  font-size: 0.82rem;
+}
+
 .dialogue-caption {
   color: #f7e6d2;
   font-family: Georgia, serif;
@@ -250,6 +320,10 @@ footer p {
 
   .objective-steps {
     flex-wrap: wrap;
+  }
+
+  .shop-panel {
+    grid-template-columns: 1fr;
   }
 
   .counter {
