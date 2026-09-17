@@ -80,46 +80,6 @@ async function collectCandy(page: Page): Promise<void> {
   await expect(goal).toHaveClass(/complete/);
 }
 
-async function goToForge(page: Page): Promise<void> {
-  await goToVillage(page);
-  const prompt = page.locator("#interaction-prompt");
-  if (profile === "development") {
-    for (let attempt = 0; attempt < 30; attempt += 1) {
-      const state = await readDebugState(page);
-      if (!state) throw new Error("Development debug state is unavailable.");
-      if (Math.abs(state.player.y - 450) <= 20) break;
-      await holdKey(page, state.player.y < 450 ? "ArrowDown" : "ArrowUp", 50);
-    }
-    for (let attempt = 0; attempt < 50; attempt += 1) {
-      const state = await readDebugState(page);
-      if (!state) throw new Error("Development debug state is unavailable.");
-      if (Math.abs(state.player.x - 325) <= 20) break;
-      await holdKey(page, state.player.x < 325 ? "ArrowRight" : "ArrowLeft", 50);
-    }
-  } else {
-    await holdKey(page, "ArrowDown", 200);
-    for (const key of ["ArrowRight", "ArrowLeft"] as const) {
-      for (let attempt = 0; attempt < 14; attempt += 1) {
-        if (await prompt.isVisible() && (await prompt.textContent()) === "Press E to enter the forge") break;
-        await holdKey(page, key, 100);
-      }
-      if (await prompt.isVisible() && (await prompt.textContent()) === "Press E to enter the forge") break;
-    }
-  }
-  await expect(prompt).toBeVisible();
-  await expect(prompt).toHaveText("Press E to enter the forge");
-  for (let attempt = 0; attempt < 3; attempt += 1) {
-    await page.keyboard.press("e");
-    try {
-      await expect(page.locator("#location-title")).toHaveText("THE FORGE", { timeout: 1_000 });
-      return;
-    } catch {
-      await page.waitForTimeout(100);
-    }
-  }
-  await expect(page.locator("#location-title")).toHaveText("THE FORGE");
-}
-
 async function approachBlacksmith(page: Page): Promise<void> {
   const prompt = page.locator("#interaction-prompt");
   for (let attempt = 0; attempt < 8; attempt += 1) {
@@ -238,25 +198,35 @@ test("queues the main theme, unlocks it with a gesture, and changes it at the fo
 
 test("talks to the blacksmith with captions and music ducking", async ({ page }) => {
   test.setTimeout(60_000);
-  await goToForge(page);
-  await approachBlacksmith(page);
-  await expect(page.locator("#interaction-prompt")).toHaveText("Press E to talk to the blacksmith");
+  const context = page.context();
+  await page.close();
+  const forgePage = await context.newPage();
+  await forgePage.addInitScript(() => {
+    localStorage.setItem("candyboxPhaserSave", JSON.stringify({
+      saveVersion: 2, location: "Forge", position: { x: 700, y: 370 }, candies: 0,
+      candyCollected: false, lollipops: 0, forgeLollipopCollected: false, woodenSwordOwned: false,
+    }));
+  });
+  await forgePage.goto("./");
+  await expect(forgePage.locator("#location-title")).toHaveText("THE FORGE");
+  await expect(forgePage.locator("#interaction-prompt")).toHaveText("Press E to talk to the blacksmith");
 
-  await page.keyboard.press("e");
-  const voice = page.locator("#dialogue-voice");
-  const music = page.locator("#location-music");
-  await expect(page.locator("#dialogue-caption")).toHaveText(
+  await forgePage.keyboard.press("e");
+  const voice = forgePage.locator("#dialogue-voice");
+  const music = forgePage.locator("#location-music");
+  await expect(forgePage.locator("#dialogue-caption")).toHaveText(
     "Hi! I'm a blacksmith. I can sell you various weapons and pieces of equipment.",
   );
-  await expect(page.locator("#dialogue-caption")).toBeVisible();
+  await expect(forgePage.locator("#dialogue-caption")).toBeVisible();
   await expect.poll(() => voice.evaluate((element: HTMLAudioElement) => element.paused)).toBe(false);
   expect(await music.evaluate((element: HTMLAudioElement) => element.volume)).toBeCloseTo(0.1225);
 
   await expect.poll(() => voice.evaluate((element: HTMLAudioElement) => element.paused), {
     timeout: 15_000,
   }).toBe(true);
-  await expect(page.locator("#dialogue-caption")).toBeHidden();
+  await expect(forgePage.locator("#dialogue-caption")).toBeHidden();
   expect(await music.evaluate((element: HTMLAudioElement) => element.volume)).toBeCloseTo(0.35);
+  await forgePage.close();
 });
 
 test("finds the forge lollipop and buys one wooden sword into the inventory", async ({ page }) => {
