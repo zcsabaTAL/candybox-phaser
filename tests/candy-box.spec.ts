@@ -83,13 +83,28 @@ async function collectCandy(page: Page): Promise<void> {
 async function goToForge(page: Page): Promise<void> {
   await goToVillage(page);
   const prompt = page.locator("#interaction-prompt");
-  await holdKey(page, "ArrowDown", 200);
-  for (const key of ["ArrowRight", "ArrowLeft"] as const) {
-    for (let attempt = 0; attempt < 14; attempt += 1) {
-      if (await prompt.isVisible() && (await prompt.textContent()) === "Press E to enter the forge") break;
-      await holdKey(page, key, 100);
+  if (profile === "development") {
+    for (let attempt = 0; attempt < 30; attempt += 1) {
+      const state = await readDebugState(page);
+      if (!state) throw new Error("Development debug state is unavailable.");
+      if (Math.abs(state.player.y - 450) <= 20) break;
+      await holdKey(page, state.player.y < 450 ? "ArrowDown" : "ArrowUp", 50);
     }
-    if (await prompt.isVisible() && (await prompt.textContent()) === "Press E to enter the forge") break;
+    for (let attempt = 0; attempt < 50; attempt += 1) {
+      const state = await readDebugState(page);
+      if (!state) throw new Error("Development debug state is unavailable.");
+      if (Math.abs(state.player.x - 325) <= 20) break;
+      await holdKey(page, state.player.x < 325 ? "ArrowRight" : "ArrowLeft", 50);
+    }
+  } else {
+    await holdKey(page, "ArrowDown", 200);
+    for (const key of ["ArrowRight", "ArrowLeft"] as const) {
+      for (let attempt = 0; attempt < 14; attempt += 1) {
+        if (await prompt.isVisible() && (await prompt.textContent()) === "Press E to enter the forge") break;
+        await holdKey(page, key, 100);
+      }
+      if (await prompt.isVisible() && (await prompt.textContent()) === "Press E to enter the forge") break;
+    }
   }
   await expect(prompt).toBeVisible();
   await expect(prompt).toHaveText("Press E to enter the forge");
