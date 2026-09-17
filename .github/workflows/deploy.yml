@@ -17,8 +17,15 @@ concurrency:
 
 jobs:
   test:
+    name: Test (${{ matrix.profile }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        profile:
+          - dev
+          - prod
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -31,8 +38,8 @@ jobs:
         run: npm ci
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Run development and production tests
-        run: npm test
+      - name: Run ${{ matrix.profile }} browser tests
+        run: npm run test:${{ matrix.profile }}
 
   build:
     needs: test

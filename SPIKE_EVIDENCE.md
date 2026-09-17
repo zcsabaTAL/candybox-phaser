@@ -89,3 +89,4 @@ Session 2 must test both scene transitions and minimum viable audio playback. Fu
 - Human correction rounds before manual review: 0
 - Agent correction rounds: 3, covering transition save ordering, isolated save seeding, and deterministic Forge-door interaction.
 - Final deployment evidence: pending CI and Pages verification
+- CI optimization: development and production browser gates retain their full coverage but run as two parallel matrix jobs. Tests inside each profile remain single-worker to avoid introducing Phaser and audio timing contention.
