@@ -272,8 +272,13 @@ test("finds the forge lollipop and buys one wooden sword into the inventory", as
   await expect(forgePage.locator("#shop-panel")).toBeVisible();
   await expect(forgePage.locator("#buy-wooden-sword")).toBeDisabled();
 
-  await holdKey(forgePage, "ArrowLeft", 1_100);
-  await holdKey(forgePage, "ArrowUp", 300);
+  if (profile === "development") {
+    await holdUntilCoordinate(forgePage, "ArrowLeft", "x", 430, "atMost");
+    await holdUntilCoordinate(forgePage, "ArrowUp", "y", 305, "atMost");
+  } else {
+    await holdKey(forgePage, "ArrowLeft", 1_100);
+    await holdKey(forgePage, "ArrowUp", 300);
+  }
   await expect.poll(() => forgePage.evaluate(() => JSON.parse(localStorage.getItem("candyboxPhaserSave")!).lollipops)).toBe(1);
   await forgePage.close();
 
